@@ -35,6 +35,9 @@ internal let SUPPORTED_CAMERA_DEVICE_TYPES: [AVCaptureDevice.DeviceType] = [
     /// Reference to the webView that is used by the Capacitor plugin for the preview layer is shown on
     private var webView: UIView?
 
+    /// Custom frame for the preview layer (if positioning is specified)
+    private var customPreviewFrame: CGRect?
+
     /// Callback for when photo capture completes.
     internal var photoCaptureHandler: ((UIImage?, Error?) -> Void)?
 
@@ -87,6 +90,7 @@ internal let SUPPORTED_CAMERA_DEVICE_TYPES: [AVCaptureDevice.DeviceType] = [
             // Display the camera preview on the provided webview
             self.displayPreview(
                 on: webView,
+                configuration: configuration,
                 completion: { error in
                     if error != nil { completion(error) }
 
@@ -127,6 +131,7 @@ internal let SUPPORTED_CAMERA_DEVICE_TYPES: [AVCaptureDevice.DeviceType] = [
             self.webView?.isOpaque = true
             self.webView?.backgroundColor = nil
             self.webView = nil
+            self.customPreviewFrame = nil
 
             if let blurOverlayView = self.blurOverlayView {
                 blurOverlayView.removeFromSuperview()
@@ -511,9 +516,10 @@ internal let SUPPORTED_CAMERA_DEVICE_TYPES: [AVCaptureDevice.DeviceType] = [
     ///
     /// - Parameters:
     ///   - view: The view that will display the camera preview.
+    ///   - configuration: The camera session configuration containing positioning info
     ///   - completion: The completion handler after successfully adding the previewLayer to the provided view
     /// - Throws: An error if the preview layer cannot be set up.
-    private func displayPreview(on view: UIView, completion: @escaping (Error?) -> Void) {
+    private func displayPreview(on view: UIView, configuration: CameraSessionConfiguration, completion: @escaping (Error?) -> Void) {
         guard captureSession.isRunning else {
             completion(CameraError.sessionNotRunning)
             return
@@ -530,7 +536,17 @@ internal let SUPPORTED_CAMERA_DEVICE_TYPES: [AVCaptureDevice.DeviceType] = [
             view.backgroundColor = UIColor.clear
             view.scrollView.backgroundColor = UIColor.clear
 
-            self.videoPreviewLayer.frame = view.bounds
+            // Apply custom positioning if provided, otherwise use full view bounds
+            if let x = configuration.x, let y = configuration.y,
+               let width = configuration.width, let height = configuration.height {
+                let customFrame = CGRect(x: x, y: y, width: width, height: height)
+                self.customPreviewFrame = customFrame
+                self.videoPreviewLayer.frame = customFrame
+            } else {
+                self.customPreviewFrame = nil
+                self.videoPreviewLayer.frame = view.bounds
+            }
+            
             view.layer.insertSublayer(self.videoPreviewLayer, at: 0)
 
             self.updatePreviewOrientation()
@@ -663,7 +679,12 @@ internal let SUPPORTED_CAMERA_DEVICE_TYPES: [AVCaptureDevice.DeviceType] = [
         // Update the frame of the preview layer to match the new bounds
         DispatchQueue.main.async { [weak self] in
             guard let self = self, let view = self.webView else { return }
-            self.videoPreviewLayer.frame = view.bounds
+            // Use custom frame if set, otherwise use view bounds
+            if let customFrame = self.customPreviewFrame {
+                self.videoPreviewLayer.frame = customFrame
+            } else {
+                self.videoPreviewLayer.frame = view.bounds
+            }
         }
     }
 

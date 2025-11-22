@@ -349,6 +349,34 @@ export interface CameraSessionConfiguration {
    * @example 'cameraContainer'
    */
   containerElementId?: string;
+
+  /**
+   * X position of the camera preview in pixels
+   * If not provided, the camera preview will be positioned at the default location (fullscreen)
+   * @default undefined
+   */
+  x?: number;
+
+  /**
+   * Y position of the camera preview in pixels
+   * If not provided, the camera preview will be positioned at the default location (fullscreen)
+   * @default undefined
+   */
+  y?: number;
+
+  /**
+   * Width of the camera preview in pixels
+   * If not provided, the camera preview will use the default width (fullscreen)
+   * @default undefined
+   */
+  width?: number;
+
+  /**
+   * Height of the camera preview in pixels
+   * If not provided, the camera preview will use the default height (fullscreen)
+   * @default undefined
+   */
+  height?: number;
 }
 
 /**

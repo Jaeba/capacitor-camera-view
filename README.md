@@ -125,6 +125,42 @@ body.camera-running {
 }
 ```
 
+## 📐 Custom Camera Preview Positioning
+
+You can position and size the camera preview anywhere on the screen using the `x`, `y`, `width`, and `height` options. This is useful for creating picture-in-picture effects, split-screen layouts, or any custom UI that requires a non-fullscreen camera view.
+
+```typescript
+import { CameraView } from 'capacitor-camera-view';
+
+// Start camera with custom position and size
+const startCamera = async () => {
+  try {
+    await CameraView.start({
+      x: 20,        // 20 pixels from the left
+      y: 100,       // 100 pixels from the top
+      width: 300,   // 300 pixels wide
+      height: 400,  // 400 pixels tall
+      position: 'back'
+    });
+    console.log('Camera started with custom positioning');
+  } catch (e) {
+    console.error('Error starting camera:', e);
+  }
+};
+```
+
+**Important notes:**
+- All values are in **pixels** (not density-independent pixels)
+- If you specify positioning (x, y, width, height), you must provide **all four values**
+- If any positioning value is omitted, the camera will default to fullscreen mode
+- This feature works on **iOS**, **Android**, and **Web** platforms
+
+**Example use cases:**
+- Picture-in-picture camera view in a corner of your app
+- Split-screen with camera on one side and content on the other
+- Small preview window for barcode scanning with instructions overlay
+- Custom AR/overlay effects with specific camera placement
+
 ## 📸 Virtual Camera Support for iOS
 
 On supported iPhone models (like the Pro series), this plugin can utilize the [**virtual triple camera**](https://developer.apple.com/documentation/avfoundation/avcapturedevice/devicetype-swift.struct/builtintriplecamera). This feature combines the ultra-wide, wide, and telephoto cameras into a single virtual device. iOS will then automatically switch between the physical cameras based on factors like zoom level and lighting conditions, providing seamless transitions and optimal image quality across a wider zoom range. You can enable this by setting the `useTripleCameraIfAvailable` option to `true` when calling `start()`.
@@ -559,6 +595,10 @@ Configuration options for starting a camera session.
 | **`preferredCameraDeviceTypes`** | <code>CameraDeviceType[]</code>                           | Ordered list of preferred camera device types to use (iOS only). The system will attempt to use the first available camera type in the list. If position is also provided, the system will use the first available camera type that matches the position and is in the list. This will fallback to the default camera type if none of the preferred types are available. | <code>undefined - system will decide based on position/deviceId</code> |
 | **`zoomFactor`**                 | <code>number</code>                                       | The initial zoom factor to use                                                                                                                                                                                                                                                                                                                                           | <code>1.0</code>                                                       |
 | **`containerElementId`**         | <code>string</code>                                       | Optional HTML ID of the container element where the camera view should be rendered. If not provided, the camera view will be appended to the document body. Web only.                                                                                                                                                                                                    |                                                                        |
+| **`x`**                          | <code>number</code>                                       | X position of the camera preview in pixels If not provided, the camera preview will be positioned at the default location (fullscreen)                                                                                                                                                                                                                                   | <code>undefined</code>                                                 |
+| **`y`**                          | <code>number</code>                                       | Y position of the camera preview in pixels If not provided, the camera preview will be positioned at the default location (fullscreen)                                                                                                                                                                                                                                   | <code>undefined</code>                                                 |
+| **`width`**                      | <code>number</code>                                       | Width of the camera preview in pixels If not provided, the camera preview will use the default width (fullscreen)                                                                                                                                                                                                                                                        | <code>undefined</code>                                                 |
+| **`height`**                     | <code>number</code>                                       | Height of the camera preview in pixels If not provided, the camera preview will use the default height (fullscreen)                                                                                                                                                                                                                                                      | <code>undefined</code>                                                 |
 
 
 #### IsRunningResponse
@@ -716,7 +756,15 @@ Response for capturing a photo
 This will contain either a base64 encoded string or a web path to the captured photo,
 depending on the `saveToFile` option in the <a href="#captureoptions">CaptureOptions</a>.
 
-<code>T['saveToFile'] extends true ? { /** The web path to the captured photo that can be used to set the src attribute of an image for efficient loading and rendering (when saveToFile is true) */ webPath: string; } : { /** The base64 encoded string of the captured photo (when saveToFile is false or undefined) */ photo: string; }</code>
+<code>T['saveToFile'] extends true
+ ? {
+ /** The web path to the captured photo that can be used to set the src attribute of an image for efficient loading and rendering (when saveToFile is true) */
+ webPath: string;
+ }
+ : {
+ /** The base64 encoded string of the captured photo (when saveToFile is false or undefined) */
+ photo: string;
+ }</code>
 
 
 #### FlashMode

@@ -60,7 +60,13 @@ export class CameraViewWeb extends WebPlugin implements CameraViewPlugin {
     try {
       // Set up video element if it doesn't exist
       if (!this.videoElement) {
-        await this.setupVideoElement(options?.containerElementId);
+        await this.setupVideoElement(
+          options?.containerElementId,
+          options?.x,
+          options?.y,
+          options?.width,
+          options?.height
+        );
       }
 
       // Set up video constraints based on options
@@ -462,14 +468,25 @@ export class CameraViewWeb extends WebPlugin implements CameraViewPlugin {
   /**
    * Set up the video element for the camera view
    */
-  private async setupVideoElement(containerElementId?: string) {
+  private async setupVideoElement(containerElementId?: string, x?: number, y?: number, width?: number, height?: number) {
     this.videoElement = document.createElement('video');
     this.videoElement.playsInline = true;
     this.videoElement.autoplay = true;
     this.videoElement.muted = true;
-    this.videoElement.style.width = '100%';
-    this.videoElement.style.height = '100%';
-    this.videoElement.style.objectFit = 'cover';
+
+    // Apply custom positioning if provided
+    if (x !== undefined && y !== undefined && width !== undefined && height !== undefined) {
+      this.videoElement.style.position = 'absolute';
+      this.videoElement.style.left = `${x}px`;
+      this.videoElement.style.top = `${y}px`;
+      this.videoElement.style.width = `${width}px`;
+      this.videoElement.style.height = `${height}px`;
+      this.videoElement.style.objectFit = 'cover';
+    } else {
+      this.videoElement.style.width = '100%';
+      this.videoElement.style.height = '100%';
+      this.videoElement.style.objectFit = 'cover';
+    }
 
     // If a container ID is provided, find that element and append the video to it
     if (containerElementId) {

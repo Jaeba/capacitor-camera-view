@@ -88,7 +88,11 @@ fun sessionConfigFromPluginCall(call: PluginCall): CameraSessionConfiguration {
         deviceId = call.getString("deviceId"),
         enableBarcodeDetection = call.getBoolean("enableBarcodeDetection") ?: false,
         position = call.getString("position") ?: "back",
-        zoomFactor = call.getFloat("zoomFactor") ?: 1.0f
+        zoomFactor = call.getFloat("zoomFactor") ?: 1.0f,
+        x = call.getInt("x"),
+        y = call.getInt("y"),
+        width = call.getInt("width"),
+        height = call.getInt("height")
     )
 }
 

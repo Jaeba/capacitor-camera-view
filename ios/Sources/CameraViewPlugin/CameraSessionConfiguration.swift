@@ -8,6 +8,10 @@ public struct CameraSessionConfiguration {
     let preferredCameraDeviceTypes: [String]?
     let useTripleCameraIfAvailable: Bool
     let zoomFactor: CGFloat?
+    let x: CGFloat?
+    let y: CGFloat?
+    let width: CGFloat?
+    let height: CGFloat?
 }
 
 /// Maps a Capacitor plugin call to a CameraSessionConfiguration struct.
@@ -20,6 +24,10 @@ public func sessionConfigFromPluginCall(_ call: CAPPluginCall) -> CameraSessionC
     let preferredCameraDeviceTypes = call.getArray("preferredCameraDeviceTypes") as? [String]
     let useTripleCameraIfAvailable = call.getBool("useTripleCameraIfAvailable", false)
     let zoomFactor = call.getDouble("zoomFactor").map { CGFloat($0) }
+    let x = call.getDouble("x").map { CGFloat($0) }
+    let y = call.getDouble("y").map { CGFloat($0) }
+    let width = call.getDouble("width").map { CGFloat($0) }
+    let height = call.getDouble("height").map { CGFloat($0) }
 
     return CameraSessionConfiguration(
         deviceId: deviceId,
@@ -27,6 +35,10 @@ public func sessionConfigFromPluginCall(_ call: CAPPluginCall) -> CameraSessionC
         position: position,
         preferredCameraDeviceTypes: preferredCameraDeviceTypes,
         useTripleCameraIfAvailable: useTripleCameraIfAvailable,
-        zoomFactor: zoomFactor
+        zoomFactor: zoomFactor,
+        x: x,
+        y: y,
+        width: width,
+        height: height
     )
 }

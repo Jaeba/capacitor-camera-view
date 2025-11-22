@@ -512,18 +512,31 @@ class CameraView(plugin: Plugin) {
         }
     }
 
-    private fun setupPreviewView(context: Context) {
+    private fun setupPreviewView(context: Context, config: CameraSessionConfiguration) {
         // Make WebView transparent
         webView.setBackgroundColor(android.graphics.Color.TRANSPARENT)
         webView.setLayerType(WebView.LAYER_TYPE_HARDWARE, null)
 
         previewView =
             PreviewView(context).apply {
-                layoutParams =
+                // Apply custom positioning if provided
+                layoutParams = if (config.x != null && config.y != null && 
+                                   config.width != null && config.height != null) {
+                    // Convert pixels to density-independent pixels for proper scaling
+                    val density = context.resources.displayMetrics.density
+                    ViewGroup.MarginLayoutParams(
+                        (config.width * density).toInt(),
+                        (config.height * density).toInt()
+                    ).apply {
+                        leftMargin = (config.x * density).toInt()
+                        topMargin = (config.y * density).toInt()
+                    }
+                } else {
                     ViewGroup.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.MATCH_PARENT
                     )
+                }
                 scaleType = PreviewView.ScaleType.FILL_CENTER
             }
 
@@ -537,7 +550,7 @@ class CameraView(plugin: Plugin) {
         config: CameraSessionConfiguration,
     ) {
         // Setup preview view
-        setupPreviewView(context)
+        setupPreviewView(context, config)
 
         currentCameraSelector = if (config.position == "front") {
             CameraSelector.DEFAULT_FRONT_CAMERA
